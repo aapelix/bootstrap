@@ -105,11 +105,17 @@ impl ClientBootstrap {
         let manifest = read_manifest_from_file(json_file).unwrap();
 
         let assets_index = &manifest.asset_index.id;
-        let classpath = classpath::create_classpath(
+        let classpath_paths: Vec<PathBuf> = classpath::create_classpath(
             self.get_jar_file(),
             self.get_libs_dir(),
             manifest.libraries,
         );
+
+        let classpath = classpath_paths
+            .iter()
+            .map(|p| p.to_str().unwrap())
+            .collect::<Vec<_>>()
+            .join(&std::env::consts::PATH_SEPARATOR.to_string());
 
         let mut args: Vec<String> = vec![];
 
