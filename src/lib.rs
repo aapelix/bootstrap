@@ -197,6 +197,7 @@ impl ClientBootstrap {
 
     pub fn launch(&self) -> Result<i32, ClientBootstrapError> {
         let args = self.build_args().unwrap();
+        println!("{:?}", args.clone())
 
         let mut process = Command::new(&self.settings.java_bin)
             .args(args)
