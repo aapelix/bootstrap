@@ -136,6 +136,8 @@ impl ClientBootstrap {
             }
         }
 
+        args.push("-cp".to_string());
+        args.push(classpath.clone());
         args.push(manifest.main_class);
 
         for arg in manifest.arguments.game {
