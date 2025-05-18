@@ -1,5 +1,5 @@
 use std::path::{Path, PathBuf};
-
+use std::env;
 use crate::{manifest::Library, rules::is_all_rules_satisfied};
 
 pub fn should_use_library(lib: &Library) -> bool {
@@ -19,15 +19,17 @@ pub fn create_classpath(
 ) -> String {
     let mut classpath = jar_file.to_str().unwrap().to_string();
 
+    let separator = if cfg!(windows) { ";" } else { ":" };
+
     for lib in libraries.iter() {
-        let should_use = should_use_library(lib);
-        if should_use {
+        if should_use_library(lib) {
             let artifact = &lib.downloads.artifact;
-            let lib_path = artifact.path.clone();
-            let fixed_lib_path = Path::new(&libraries_path).join(lib_path);
-            classpath = format!("{}:{}", classpath, fixed_lib_path.to_str().unwrap());
+            let lib_path = &artifact.path;
+            let fixed_lib_path = libraries_path.join(lib_path);
+            classpath = format!("{}{}{}", classpath, separator, fixed_lib_path.to_str().unwrap());
         }
     }
 
-    return classpath;
+    classpath
 }
+
