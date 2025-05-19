@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::env;
+use std::collections::HashMap;
 use crate::{manifest::Library, rules::is_all_rules_satisfied};
 
 pub fn should_use_library(lib: &Library) -> bool {
@@ -12,6 +13,34 @@ pub fn should_use_library(lib: &Library) -> bool {
     return is_all_rules_satisfied(rules);
 }
 
+pub fn filter_libraries_keep_newest(libs: Vec<Library>) -> Vec<Library> {
+    let mut latest_versions: HashMap<String, Library> = HashMap::new();
+
+    for lib in libs.into_iter() {
+        let (base_name, version) = match lib.name.rsplit_once(':') {
+            Some((n, v)) => (n.to_string(), v.to_string()),
+            None => (lib.name.clone(), String::new()),
+        };
+
+        let version_nums: Vec<u32> = version.split('.').filter_map(|p| p.parse().ok()).collect();
+
+        let update = match latest_versions.get(&base_name) {
+            Some(existing) => {
+                let existing_version = existing.name.rsplit_once(':').map(|(_, v)| v).unwrap_or("");
+                let existing_nums: Vec<u32> = existing_version.split('.').filter_map(|p| p.parse().ok()).collect();
+                version_nums > existing_nums
+            }
+            None => true,
+        };
+
+        if update {
+            latest_versions.insert(base_name, lib);
+        }
+    }
+
+    latest_versions.into_values().collect()
+}
+
 pub fn create_classpath(
     jar_file: PathBuf,
     libraries_path: PathBuf,
@@ -20,11 +49,12 @@ pub fn create_classpath(
     let separator = if cfg!(windows) { ";" } else { ":" };
     let mut paths = vec![];
 
-    for lib in libraries.iter() {
+    let filtered_libs = filter_libraries_keep_newest(libraries);
+
+    for lib in filtered_libs.iter() {
         if should_use_library(lib) {
             let artifact = &lib.downloads.artifact;
-            let lib_path = &artifact.path;
-            let fixed_lib_path = libraries_path.join(lib_path);
+            let fixed_lib_path = libraries_path.join(&artifact.path);
             paths.push(fixed_lib_path.to_str().unwrap().to_string());
         }
     }
@@ -33,5 +63,3 @@ pub fn create_classpath(
 
     paths.join(separator)
 }
-
-
