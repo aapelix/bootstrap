@@ -3,13 +3,14 @@ use std::env;
 use crate::{manifest::Library, rules::is_all_rules_satisfied};
 
 pub fn should_use_library(lib: &Library) -> bool {
-    let rules_opt = &lib.rules;
-    if !rules_opt.is_some() {
-        return true;
-    }
+    //let rules_opt = &lib.rules;
+    //if !rules_opt.is_some() {
+    //    return true;
+    //}
 
-    let rules = rules_opt.as_ref().unwrap();
-    return is_all_rules_satisfied(rules);
+    //let rules = rules_opt.as_ref().unwrap();
+    //return is_all_rules_satisfied(rules);
+    true
 }
 
 pub fn create_classpath(
