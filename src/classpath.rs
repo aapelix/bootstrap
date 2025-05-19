@@ -52,11 +52,11 @@ pub fn create_classpath(
     let filtered_libs = filter_libraries_keep_newest(libraries);
 
     for lib in filtered_libs.iter() {
-        if should_use_library(lib) {
+    //    if should_use_library(lib) {
             let artifact = &lib.downloads.artifact;
             let fixed_lib_path = libraries_path.join(&artifact.path);
             paths.push(fixed_lib_path.to_str().unwrap().to_string());
-        }
+    //    }
     }
 
     paths.push(jar_file.to_str().unwrap().to_string());
