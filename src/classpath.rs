@@ -17,19 +17,21 @@ pub fn create_classpath(
     libraries_path: PathBuf,
     libraries: Vec<Library>,
 ) -> String {
-    let mut classpath = jar_file.to_str().unwrap().to_string();
-
     let separator = if cfg!(windows) { ";" } else { ":" };
+    let mut paths = vec![];
 
     for lib in libraries.iter() {
         if should_use_library(lib) {
             let artifact = &lib.downloads.artifact;
             let lib_path = &artifact.path;
             let fixed_lib_path = libraries_path.join(lib_path);
-            classpath = format!("{}{}{}", classpath, separator, fixed_lib_path.to_str().unwrap());
+            paths.push(fixed_lib_path.to_str().unwrap().to_string());
         }
     }
 
-    classpath
+    paths.push(jar_file.to_str().unwrap().to_string());
+
+    paths.join(separator)
 }
+
 
