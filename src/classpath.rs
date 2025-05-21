@@ -1,7 +1,6 @@
-use std::path::{Path, PathBuf};
-use std::env;
-use std::collections::HashMap;
 use crate::{manifest::Library, rules::is_all_rules_satisfied};
+use std::collections::HashMap;
+use std::path::PathBuf;
 
 pub fn should_use_library(lib: &Library) -> bool {
     let rules_opt = &lib.rules;
@@ -27,7 +26,10 @@ pub fn filter_libraries_keep_newest(libs: Vec<Library>) -> Vec<Library> {
         let update = match latest_versions.get(&base_name) {
             Some(existing) => {
                 let existing_version = existing.name.rsplit_once(':').map(|(_, v)| v).unwrap_or("");
-                let existing_nums: Vec<u32> = existing_version.split('.').filter_map(|p| p.parse().ok()).collect();
+                let existing_nums: Vec<u32> = existing_version
+                    .split('.')
+                    .filter_map(|p| p.parse().ok())
+                    .collect();
                 version_nums > existing_nums
             }
             None => true,

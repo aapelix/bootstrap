@@ -112,26 +112,26 @@ impl ClientBootstrap {
         let quick_play_multiplayer = self.get_quick_play_multiplayer();
         let quick_play_realms = self.get_quick_play_realms();
 
-        let quick_play_path_replace = if let Some(path) = quick_play_path {
-            format!("--quickPlayPath \"{}\"", path.display())
+        let quick_play_path_replace = if let Some(_) = quick_play_path {
+            String::from("--quickPlayPath")
         } else {
             String::new()
         };
 
-        let quick_play_singleplayer_replace = if let Some(value) = quick_play_singleplayer {
-            format!("--quickPlaySingleplayer \"{}\"", value)
+        let quick_play_singleplayer_replace = if let Some(_) = quick_play_singleplayer {
+            String::from("--quickPlaySingleplayer")
         } else {
             String::new()
         };
 
-        let quick_play_multiplayer_replace = if let Some(value) = quick_play_multiplayer {
-            format!("--quickPlayMultiplayer \"{}\"", value)
+        let quick_play_multiplayer_replace = if let Some(_) = quick_play_multiplayer {
+            String::from("--quickPlayMultiplayer")
         } else {
             String::new()
         };
 
-        let quick_play_realms_replace = if let Some(value) = quick_play_realms {
-            format!("--quickPlayRealms \"{}\"", value)
+        let quick_play_realms_replace = if let Some(_) = quick_play_realms {
+            String::from("--quickPlayRealms")
         } else {
             String::new()
         };
@@ -233,18 +233,29 @@ impl ClientBootstrap {
                     .replace("${version_type}", &version.version_type)
                     .replace("${version_name}", &version.version)
                     .replace("${assets_index_name}", &assets_index)
-                    .replace("--quickPlayPath ${quickPlayPath}", &quick_play_path_replace)
+                    .replace("--quickPlayPath", &quick_play_path_replace)
                     .replace(
-                        "--quickPlaySingleplayer ${quickPlaySingleplayer}",
-                        &quick_play_singleplayer_replace,
+                        "${quickPlayPath}",
+                        &quick_play_path
+                            .clone()
+                            .unwrap_or(PathBuf::new())
+                            .to_str()
+                            .unwrap(),
                     )
+                    .replace("--quickPlaySingleplayer", &quick_play_singleplayer_replace)
                     .replace(
-                        "--quickPlayMultiplayer ${quickPlayMultiplayer}",
-                        &quick_play_multiplayer_replace,
+                        "${quickPlaySingleplayer}",
+                        &quick_play_singleplayer.clone().unwrap_or("".to_string()),
                     )
+                    .replace("--quickPlayMultiplayer", &quick_play_multiplayer_replace)
                     .replace(
-                        "--quickPlayRealms ${quickPlayRealms}",
-                        &quick_play_realms_replace,
+                        "${quickPlayMultiplayer}",
+                        &quick_play_multiplayer.clone().unwrap_or("".to_string()),
+                    )
+                    .replace("--quickPlayRealms", &quick_play_realms_replace)
+                    .replace(
+                        "${quickPlayRealms}",
+                        &quick_play_realms.clone().unwrap_or("".to_string()),
                     )
                     .replace("${user_properties}", "{}")
                     .replace("${classpath}", &classpath)
