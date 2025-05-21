@@ -32,6 +32,10 @@ fn main() {
             .join("versions")
             .join("1.19.4")
             .join("1.19.4.jar"),
+        quick_play_path: None,
+        quick_play_singleplayer: None,
+        quick_play_multiplayer: None,
+        quick_play_realms: None,
     });
 
     bootstrap.launch().unwrap();

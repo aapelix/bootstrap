@@ -46,6 +46,10 @@ pub struct ClientSettings {
     pub natives_dir: PathBuf,
     pub version: ClientVersion,
     pub version_jar_file: PathBuf,
+    pub quick_play_path: Option<PathBuf>,
+    pub quick_play_singleplayer: Option<String>,
+    pub quick_play_multiplayer: Option<String>,
+    pub quick_play_realms: Option<String>,
 }
 
 pub struct ClientBootstrap {
@@ -81,6 +85,19 @@ impl ClientBootstrap {
         return self.settings.natives_dir.clone();
     }
 
+    pub fn get_quick_play_path(&self) -> Option<PathBuf> {
+        return self.settings.quick_play_path.clone();
+    }
+    pub fn get_quick_play_singleplayer(&self) -> Option<String> {
+        return self.settings.quick_play_singleplayer.clone();
+    }
+    pub fn get_quick_play_multiplayer(&self) -> Option<String> {
+        return self.settings.quick_play_multiplayer.clone();
+    }
+    pub fn get_quick_play_realms(&self) -> Option<String> {
+        return self.settings.quick_play_realms.clone();
+    }
+
     pub fn build_args(&self) -> Result<Vec<String>, ClientBootstrapError> {
         let auth = &self.settings.auth;
         let assets_dir = self.get_assets_dir();
@@ -89,6 +106,35 @@ impl ClientBootstrap {
         let json_file = self.get_json_file();
         let natives_dir = self.get_natives_dir();
         let version = &self.settings.version;
+
+        let quick_play_path = self.get_quick_play_path();
+        let quick_play_singleplayer = self.get_quick_play_singleplayer();
+        let quick_play_multiplayer = self.get_quick_play_multiplayer();
+        let quick_play_realms = self.get_quick_play_realms();
+
+        let quick_play_path_replace = if let Some(path) = quick_play_path {
+            format!("--quickPlayPath \"{}\"", path.display())
+        } else {
+            String::new()
+        };
+
+        let quick_play_singleplayer_replace = if let Some(value) = quick_play_singleplayer {
+            format!("--quickPlaySingleplayer \"{}\"", value)
+        } else {
+            String::new()
+        };
+
+        let quick_play_multiplayer_replace = if let Some(value) = quick_play_multiplayer {
+            format!("--quickPlayMultiplayer \"{}\"", value)
+        } else {
+            String::new()
+        };
+
+        let quick_play_realms_replace = if let Some(value) = quick_play_realms {
+            format!("--quickPlayRealms \"{}\"", value)
+        } else {
+            String::new()
+        };
 
         if !game_dir.is_dir() {
             return Err(ClientBootstrapError::GameDirNotExist);
@@ -187,6 +233,19 @@ impl ClientBootstrap {
                     .replace("${version_type}", &version.version_type)
                     .replace("${version_name}", &version.version)
                     .replace("${assets_index_name}", &assets_index)
+                    .replace("--quickPlayPath ${quickPlayPath}", &quick_play_path_replace)
+                    .replace(
+                        "--quickPlaySingleplayer ${quickPlaySingleplayer}",
+                        &quick_play_singleplayer_replace,
+                    )
+                    .replace(
+                        "--quickPlayMultiplayer ${quickPlayMultiplayer}",
+                        &quick_play_multiplayer_replace,
+                    )
+                    .replace(
+                        "--quickPlayRealms ${quickPlayRealms}",
+                        &quick_play_realms_replace,
+                    )
                     .replace("${user_properties}", "{}")
                     .replace("${classpath}", &classpath)
             })
